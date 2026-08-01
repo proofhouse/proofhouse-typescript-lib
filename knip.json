@@ -2,5 +2,5 @@
   "$schema": "./node_modules/knip/schema.json",
   "entry": ["src/index.ts", "tests/types/*.types.ts"],
   "includeEntryExports": true,
-  "ignoreDependencies": ["@biomejs/biome", "cspell", "tsc7"]
+  "ignoreDependencies": ["@biomejs/biome", "cspell", "jscpd", "tsc7"]
 }

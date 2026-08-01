@@ -135,6 +135,17 @@ repos:
         types: [ts]
         pass_filenames: false
 
+      # A clone is a statement about two files at once, and the commit
+      # that creates one need only carry the newer half. Handing this
+      # hook the staged paths would therefore leave it comparing a copy
+      # against nothing. It scans the same roots the recipe names.
+      - id: jscpd
+        name: jscpd duplicate code check
+        entry: just lint-dup-code
+        language: system
+        types: [ts]
+        pass_filenames: false
+
       # The workspace file carries the resolution and supply-chain
       # settings, so an edit to it re-verifies the lockfile the same as
       # an edit to the manifest does.
