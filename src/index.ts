@@ -34,6 +34,17 @@ export function version(): string {
 }
 
 // biome-ignore lint/performance/noBarrelFile: the exports map names this module as the entry point.
-export { ExpressionError, LexError } from "./errors.ts";
+export {
+  BINARY_OPERATORS,
+  type BinaryOp,
+  type BinaryOperator,
+  type Expr,
+  type Number,
+  UNARY_OPERATORS,
+  type UnaryOp,
+  type UnaryOperator,
+} from "./ast.ts";
+export { ExpressionError, LexError, ParseError } from "./errors.ts";
 export { tokenize } from "./lexer.ts";
+export { parse } from "./parser.ts";
 export { TOKEN_KINDS, type Token, type TokenKind } from "./tokens.ts";

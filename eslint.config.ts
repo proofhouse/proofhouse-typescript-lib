@@ -73,6 +73,10 @@ const config: ConfigObject[] = defineConfig([
       // index into a local array included. Upstream describes the finding as a
       // prompt to review rather than as a defect.
       "security/detect-object-injection": "off",
+      // Any comparison against a variable whose name reads like a credential draws
+      // this one, and `token` is what a lexer calls the lexeme it just scanned. No
+      // secret is compared anywhere in the package.
+      "security/detect-possible-timing-attacks": "off",
     },
   },
   {

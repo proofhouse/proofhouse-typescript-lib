@@ -34,6 +34,9 @@
       "correctness": {
         "noNodejsModules": "off"
       },
+      "style": {
+        "useDefaultSwitchClause": "off"
+      },
       "suspicious": {
         "noUnnecessaryConditions": "off",
         "useAwait": "off"
