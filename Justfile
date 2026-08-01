@@ -165,10 +165,10 @@ format-markdown *args:
 # Lays down the shape biome.json describes: spaces two wide, a 100-column
 # limit, double quotes, and imports in the order the assist settles on.
 # Nothing else biome knows about a file reaches this recipe; the rules
-# report through `lint-config`, which rewrites no source.
+# report through `lint-biome`, which rewrites no source.
 
 # Format JSON, JS, and TS files in place via biome's formatter.
-format-config *args:
+format *args:
     node_modules/.bin/biome format --write {{ if args == "" { "." } else { args } }}
 
 # The in-place counterpart to the check `lint-toml` runs. It rewrites
@@ -194,6 +194,15 @@ format-just:
 
 # --- Fix ---
 
+# One pass does both jobs: biome applies the lint fixes it rates safe
+# and lays out whatever it touched, so nothing needs to run after it.
+# Findings it cannot fix safely stay in place, where `lint-biome`
+# reports them.
+
+# Apply biome's safe lint fixes and reformat in place.
+fix *args:
+    node_modules/.bin/biome check --write --files-ignore-unknown=true {{ if args == "" { "." } else { args } }}
+
 # Complement to `format-markdown` (which only rewrites whitespace and
 # ordering, not semantic lints).
 
@@ -203,13 +212,22 @@ fix-markdown *args:
 
 # --- Lint ---
 
-# One entry point for every gate that reads the source tree. Each
-# linter added later appends itself to the dependency list, so a
+# A subset of `lint` below holding only the gates that read TypeScript,
+# so an edit to the library can be checked without waiting on the prose,
+# Markdown, YAML, and TOML passes over the whole tree. Later TypeScript
+# gates land here as they arrive. The recipe is a dependency list and
+# runs nothing of its own.
+
+# Run every TypeScript-flavored lint gate.
+lint-ts-all: lint-biome
+
+# One entry point for every gate that reads the source tree, so a
 # contributor and a merge check always run the same set under the same
-# name.
+# name. `lint-ts-all` leads the list and carries the TypeScript gates in
+# with it; the rest judge files of any language.
 
 # Run every linter that operates on the source tree.
-lint: lint-prose lint-spelling lint-markdown lint-config lint-yaml lint-toml lint-just lint-editorconfig
+lint: lint-ts-all lint-prose lint-spelling lint-markdown lint-yaml lint-toml lint-just lint-editorconfig
 
 # The glob steers vale away from the LICENSE (canonical Apache 2.0
 # text), the generated changelog, vale's own synced style packages,
@@ -247,11 +265,14 @@ lint-markdown *args:
 # drift and the lint rules together. Every rule biome ships is on, so
 # correctness, style, complexity, and import order all answer here. The
 # executable comes from node_modules by path, which holds the check to
-# the version package.json pins.
+# the version package.json pins. Warnings fail the run too: the preset
+# leaves some rules below error severity, and a plain `biome check`
+# prints those findings and still exits 0, which would leave the rules
+# behind them unenforced.
 
 # Lint JSON, JS, and TS files via biome.
-lint-config *args:
-    node_modules/.bin/biome check --files-ignore-unknown=true {{ if args == "" { "." } else { args } }}
+lint-biome *args:
+    node_modules/.bin/biome check --error-on-warnings --files-ignore-unknown=true {{ if args == "" { "." } else { args } }}
 
 # --strict treats warnings as errors so the gate matches CI behavior;
 # per-rule tuning lives in .yamllint.yaml.
