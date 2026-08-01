@@ -219,7 +219,7 @@ fix-markdown *args:
 # runs nothing of its own.
 
 # Run every TypeScript-flavored lint gate.
-lint-ts-all: lint-biome typecheck lint-eslint lint-deadcode
+lint-ts-all: lint-biome typecheck lint-eslint lint-deadcode lint-dup-code
 
 # One entry point for every gate that reads the source tree, so a
 # contributor and a merge check always run the same set under the same
@@ -305,6 +305,27 @@ lint-eslint:
 # Check for unused files, exports, and dependencies via knip.
 lint-deadcode:
     node_modules/.bin/knip
+
+# Every gate above reads a name and decides whether it holds up. None of
+# them compares two passages of code and notices that one was pasted
+# from the other, which is how an expression package grows: the next
+# operator starts as a copy of the last one. jscpd compares the token
+# streams and reports the pairs. The Python repositories reach the same
+# finding through pylint's similarities checker.
+#
+# The flags live here rather than in a .jscpd.json so each one can be
+# answered for. A threshold names the share of duplicated lines a run
+# forgives, and 0 leaves it forgiving nothing. Beside it sits the size a
+# match has to reach before it counts, in tokens rather than lines so
+# that reformatting cannot talk the number down. 50 is what jscpd would
+# use unasked; writing it out means a release that revises the default
+# has to revise this line as well. The roots follow as arguments,
+# because jscpd reads paths from the command line and its config file
+# holds settings alone.
+
+# Report copy-pasted passages across the sources and the suite.
+lint-dup-code:
+    node_modules/.bin/jscpd --threshold 0 --min-tokens 50 src tests
 
 # --strict treats warnings as errors so the gate matches CI behavior;
 # per-rule tuning lives in .yamllint.yaml.

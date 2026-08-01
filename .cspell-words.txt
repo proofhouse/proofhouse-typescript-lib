@@ -21,6 +21,7 @@ pipefail
 prek
 proofhouse
 pydocstyle
+pylint
 pypi
 pyproject
 pyrefly
