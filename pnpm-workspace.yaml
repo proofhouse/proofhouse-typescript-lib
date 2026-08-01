@@ -1,3 +1,4 @@
+---
 # Supply-chain policy for installs in this repository. Each setting below
 # is load-bearing, so treat the block as a whole and do not loosen an
 # entry to get an install moving.

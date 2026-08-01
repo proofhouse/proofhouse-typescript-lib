@@ -101,7 +101,7 @@ fix-markdown *args:
 # name.
 
 # Run every linter that operates on the source tree.
-lint: lint-prose lint-spelling lint-markdown lint-config
+lint: lint-prose lint-spelling lint-markdown lint-config lint-yaml
 
 # The glob steers vale away from the LICENSE (canonical Apache 2.0
 # text), the generated changelog, vale's own synced style packages,
@@ -144,6 +144,13 @@ lint-markdown *args:
 # Lint JSON, JS, and TS files via biome.
 lint-config *args:
     node_modules/.bin/biome check --files-ignore-unknown=true {{ if args == "" { "." } else { args } }}
+
+# --strict treats warnings as errors so the gate matches CI behavior;
+# per-rule tuning lives in .yamllint.yaml.
+
+# Lint YAML files (config, workflows, action definitions).
+lint-yaml *args:
+    yamllint --strict {{ if args == "" { "." } else { args } }}
 
 # --- Test ---
 
