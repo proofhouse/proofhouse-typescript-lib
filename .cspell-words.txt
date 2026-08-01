@@ -12,12 +12,16 @@ lockfiles
 lparen
 matrixed
 mktemp
+orbstack
+osxkeychain
 pipefail
 prek
 proofhouse
 pyproject
+rhysd
 rparen
 rumdl
+shellcheck
 tbhb
 tmpl
 tombi

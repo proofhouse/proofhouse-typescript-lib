@@ -155,3 +155,6 @@ uvx?
 pnpm
 packageManager
 [Cc]ooldown
+shellcheck
+devDependencies
+npm
