@@ -7,6 +7,15 @@ set positional-arguments := true
 # incompatibility would stay hidden locally until CI runs on Linux.
 set script-interpreter := ['bash', '-eu']
 
+# The tombi release this repo's config and committed formatting are
+# verified against. tombi comes from Homebrew rather than the lockfile,
+# so `check-tombi-version` compares the local binary with this pin: a
+# mismatch means local formatting may differ from what the gate expects.
+
+# renovate: datasource=github-releases depName=tombi-toml/tombi
+
+tombi_version := "1.2.5"
+
 # Build metadata. `date` is the *committer date* (UTC, ISO-8601), not
 # build invocation time, so two checkouts of one commit agree on the
 # instant, and `source_date_epoch` carries that instant as a unix
@@ -84,6 +93,16 @@ format-markdown *args:
 format-config *args:
     node_modules/.bin/biome format --write {{ if args == "" { "." } else { args } }}
 
+# The in-place counterpart to the check `lint-toml` runs. It rewrites
+# whitespace and style and nothing else: key order and array order stay
+# as the author left them, because tombi.toml turns the schema-driven
+# reordering off. That file also decides which paths the walk reaches,
+# so this recipe takes no arguments either.
+
+# Format TOML files in place.
+format-toml:
+    tombi format
+
 # --- Fix ---
 
 # Complement to `format-markdown` (which only rewrites whitespace and
@@ -101,7 +120,7 @@ fix-markdown *args:
 # name.
 
 # Run every linter that operates on the source tree.
-lint: lint-prose lint-spelling lint-markdown lint-config lint-yaml
+lint: lint-prose lint-spelling lint-markdown lint-config lint-yaml lint-toml
 
 # The glob steers vale away from the LICENSE (canonical Apache 2.0
 # text), the generated changelog, vale's own synced style packages,
@@ -151,6 +170,38 @@ lint-config *args:
 # Lint YAML files (config, workflows, action definitions).
 lint-yaml *args:
     yamllint --strict {{ if args == "" { "." } else { args } }}
+
+# tombi is the org gate for TOML and it reads every tracked file of
+# that kind: the runtime pins and its own config today, and whatever
+# else the tree grows later. A file with an associated schema validates
+# offline against the embedded SchemaStore copy; the rest get syntax
+# and style checks. The formatter runs here too, in the mode that
+# reports a diff instead of applying one, so layout drift fails the
+# gate rather than being repaired behind the contributor's back. Going
+# offline keeps a merge check independent of SchemaStore's uptime, and
+# warnings count as failures the way they do everywhere else in this
+# file. Which paths the walk covers is settled in tombi.toml, which is
+# why this recipe alone among its neighbors accepts no path arguments.
+
+# Lint and format-check every tracked TOML file.
+lint-toml:
+    tombi format --check --diff
+    tombi lint --offline --error-on-warnings
+
+# Advisory rather than fatal: tombi comes from Homebrew and moves on
+# its own schedule, and that is fine so long as it stays visible rather
+# than silently reformatting a file the gate then rejects.
+
+# Warn when the local tombi differs from the verified release.
+[script]
+check-tombi-version:
+    local=$(tombi --version | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+    if [[ "${local}" != "{{ tombi_version }}" ]]; then
+        echo "warning: local tombi ${local} != verified {{ tombi_version }}" >&2
+        echo "         formatting may differ from what the gate expects" >&2
+    else
+        echo "tombi ${local} matches the verified release"
+    fi
 
 # --- Test ---
 
