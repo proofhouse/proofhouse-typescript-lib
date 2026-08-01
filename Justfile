@@ -75,6 +75,15 @@ clean:
 format-markdown *args:
     rumdl fmt {{ if args == "" { "." } else { args } }}
 
+# Lays down the shape biome.json describes: spaces two wide, a 100-column
+# limit, double quotes, and imports in the order the assist settles on.
+# Nothing else biome knows about a file reaches this recipe; the rules
+# report through `lint-config`, which rewrites no source.
+
+# Format JSON, JS, and TS files in place via biome's formatter.
+format-config *args:
+    node_modules/.bin/biome format --write {{ if args == "" { "." } else { args } }}
+
 # --- Fix ---
 
 # Complement to `format-markdown` (which only rewrites whitespace and
@@ -92,7 +101,7 @@ fix-markdown *args:
 # name.
 
 # Run every linter that operates on the source tree.
-lint: lint-prose lint-spelling lint-markdown
+lint: lint-prose lint-spelling lint-markdown lint-config
 
 # The glob steers vale away from the LICENSE (canonical Apache 2.0
 # text), the generated changelog, vale's own synced style packages,
@@ -125,6 +134,16 @@ lint-spelling *args:
 # Lint Markdown files against the project's .rumdl.toml ruleset.
 lint-markdown *args:
     rumdl check {{ if args == "" { "." } else { args } }}
+
+# One pass over the TypeScript and the JSON beside it, covering layout
+# drift and the lint rules together. Every rule biome ships is on, so
+# correctness, style, complexity, and import order all answer here. The
+# executable comes from node_modules by path, which holds the check to
+# the version package.json pins.
+
+# Lint JSON, JS, and TS files via biome.
+lint-config *args:
+    node_modules/.bin/biome check --files-ignore-unknown=true {{ if args == "" { "." } else { args } }}
 
 # --- Test ---
 

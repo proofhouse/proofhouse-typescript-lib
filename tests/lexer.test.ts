@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright Authors of Proofhouse
 
+// biome-ignore-all lint/style/noMagicNumbers: the offsets are the expectation under test.
+
 import { describe, expect, it } from "vitest";
 
 import {

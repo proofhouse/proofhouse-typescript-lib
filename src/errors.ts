@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: Apache-2.0
 // Copyright Authors of Proofhouse
 
+// biome-ignore-all lint/style/noExcessiveClassesPerFile: one module holds the hierarchy.
+
 // Errors raised while processing expressions.
 
 /**

@@ -148,3 +148,4 @@ pull_request
 lockfile[s]?
 org's
 yamllint
+configs

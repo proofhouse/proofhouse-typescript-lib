@@ -38,8 +38,13 @@ const SINGLE_CHAR_KINDS: ReadonlyMap<string, TokenKind> = new Map<string, TokenK
 export function tokenize(text: string): readonly Token[] {
   const tokens: Token[] = [];
   for (const match of text.matchAll(SCANNER)) {
-    const lexeme = match[0];
-    const kind = DIGITS.test(lexeme) ? "number" : SINGLE_CHAR_KINDS.get(lexeme);
+    const [lexeme] = match;
+    let kind: TokenKind | undefined;
+    if (DIGITS.test(lexeme)) {
+      kind = "number";
+    } else {
+      kind = SINGLE_CHAR_KINDS.get(lexeme);
+    }
     if (kind === undefined) {
       throw new LexError(lexeme, match.index);
     }
