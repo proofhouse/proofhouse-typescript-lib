@@ -1,0 +1,72 @@
+# Where the files that carry no inline two-line header say what they
+# are licensed under. reuse lint holds every tracked file to that
+# statement, and the TypeScript sources make it for themselves at the
+# top of each file. Everything else is declared below.
+version = 1
+
+# Hand-edited configuration at the top level. Some of these formats
+# take comments and some of them cannot, plain JSON least of all, so
+# one bulk group spares the reader from working out which is which.
+[[annotations]]
+path = [
+  ".cspell-words.txt",
+  ".cspell.jsonc",
+  ".editorconfig",
+  ".editorconfig-checker.json",
+  ".gitattributes",
+  ".gitignore",
+  ".pre-commit-config.yaml",
+  ".rumdl.toml",
+  ".vale.ini",
+  ".yamllint.yaml",
+  ".yamllintignore",
+  "biome.json",
+  "Brewfile",
+  "cog.toml",
+  "Justfile",
+  "knip.json",
+  "mise.toml",
+  "package.json",
+  "pnpm-workspace.yaml",
+  "tombi.toml",
+  "tsconfig.build.json",
+  "tsconfig.json",
+]
+SPDX-FileCopyrightText = "Copyright Authors of Proofhouse"
+SPDX-License-Identifier = "Apache-2.0"
+
+# A resolution rewrites this file from top to bottom, so a header
+# typed into it would survive only until the next install.
+[[annotations]]
+path = ["pnpm-lock.yaml"]
+SPDX-FileCopyrightText = "Copyright Authors of Proofhouse"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Workflows, the ownership map, and the Renovate configuration. A
+# directory glob rather than a list, so tomorrow's workflow file is
+# already declared on the day it lands.
+[[annotations]]
+path = [".github/**"]
+SPDX-FileCopyrightText = "Copyright Authors of Proofhouse"
+SPDX-License-Identifier = "Apache-2.0"
+
+# The vocabulary this project maintains for vale. Synced upstream
+# style packages are gitignored and stay outside the glob's reach.
+[[annotations]]
+path = [".vale/**"]
+SPDX-FileCopyrightText = "Copyright Authors of Proofhouse"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Contributor and agent documentation together with the rule files the
+# agent harness picks up.
+[[annotations]]
+path = ["AGENTS.md", "CLAUDE.md", ".claude/**"]
+SPDX-FileCopyrightText = "Copyright Authors of Proofhouse"
+SPDX-License-Identifier = "Apache-2.0"
+
+# Every release has cog rebuild the changelog out of the commit
+# history, which leaves no room for a header of its own.
+[[annotations]]
+path = ["CHANGELOG.md"]
+SPDX-FileCopyrightText = "Copyright Authors of Proofhouse"
+SPDX-License-Identifier = "Apache-2.0"

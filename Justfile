@@ -217,9 +217,14 @@ fix-markdown *args:
 # Markdown, YAML, and TOML passes over the whole tree. Later TypeScript
 # gates land here as they arrive. The recipe is a dependency list and
 # runs nothing of its own.
+#
+# One member reads well past TypeScript. `lint-reuse` weighs every
+# tracked file, and it sits here because a new source file is the
+# commonest way an undeclared one appears. The Python repositories
+# place their own reuse gate in the equivalent list for that reason.
 
 # Run every TypeScript-flavored lint gate.
-lint-ts-all: lint-biome typecheck lint-eslint lint-deadcode lint-dup-code lint-architecture
+lint-ts-all: lint-biome typecheck lint-eslint lint-deadcode lint-dup-code lint-architecture lint-reuse
 
 # One entry point for every gate that reads the source tree, so a
 # contributor and a merge check always run the same set under the same
@@ -347,6 +352,25 @@ lint-dup-code:
 lint-architecture:
     node_modules/.bin/depcruise src tests --config .dependency-cruiser.cjs
     node_modules/.bin/depcruise src --config .dependency-cruiser.cjs -T json | jq -e '.summary.totalCruised > 0' > /dev/null
+
+# A tracked file has to name its copyright holder and its license
+# somewhere reuse can find. TypeScript sources answer in their opening
+# two lines and the rest answer through REUSE.toml, where one
+# annotation can speak for a whole directory.
+#
+# reuse comes from PyPI and this package declares no Python
+# dependencies, so the recipe hands the pin to uvx and lets its cache
+# hold the release. The sibling Python repositories put it in a
+# dependency group instead. Renovate reads the pin straight off the
+# line below. Its extra supplies the encoding detector reuse falls back
+# on when a file will not decode as UTF-8. The other flag drops the
+# per-file process pool, whose startup outweighs the parallelism at
+# this file count and whose semaphores a restricted environment may
+# refuse outright.
+
+# Verify SPDX compliance with reuse.
+lint-reuse:
+    uvx --from 'reuse[charset-normalizer]==6.2.0' reuse --no-multiprocessing lint
 
 # --strict treats warnings as errors so the gate matches CI behavior;
 # per-rule tuning lives in .yamllint.yaml.
