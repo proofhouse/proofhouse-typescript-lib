@@ -152,3 +152,6 @@ configs
 [Ee]ditorconfig
 Brewfile
 uvx?
+pnpm
+packageManager
+[Cc]ooldown

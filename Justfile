@@ -285,6 +285,18 @@ lint-commit-msg:
 test *args:
     node_modules/.bin/vitest run "$@"
 
+# A second suite, far smaller, that runs on the runtime and nothing else:
+# no vitest, no transform, no step of any kind between the sources and
+# Node. It reaches an assertion only when every module behind the entry
+# point survives type stripping, which is what makes syntax the runtime
+# can't erase fail here rather than pass quietly under a compiler.
+# vitest passes the directory over for the same reason. Node expands the
+# pattern itself, so it stays quoted rather than going to the shell.
+
+# Run the smoke suite as raw TypeScript under Node's type stripping.
+test-erasable:
+    node --test "tests/erasable/**/*.test.ts"
+
 # Typecheck the sources and the tests. tsc7 is named by path because
 # both compilers in devDependencies ship a tsc binary and only one of
 # them wins the .bin link, which would leave install order deciding

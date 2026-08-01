@@ -7,8 +7,10 @@ EDITMSG
 goreleaser
 hardlinks
 hardwrap
+linuxbrew
 lockfiles
 lparen
+matrixed
 mktemp
 pipefail
 prek
