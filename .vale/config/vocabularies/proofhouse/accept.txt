@@ -166,3 +166,5 @@ pydocstyle
 knip
 jscpd
 pylint
+publint
+attw('s)?
