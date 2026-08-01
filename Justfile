@@ -69,13 +69,13 @@ clean:
 
 # --- Lint ---
 
-# One entry point for every gate that reads the source tree. Prose is
-# the only member today and each linter added later appends itself to
-# the dependency list, so a contributor and a merge check always run
-# the same set under the same name.
+# One entry point for every gate that reads the source tree. Each
+# linter added later appends itself to the dependency list, so a
+# contributor and a merge check always run the same set under the same
+# name.
 
 # Run every linter that operates on the source tree.
-lint: lint-prose
+lint: lint-prose lint-spelling
 
 # The glob steers vale away from the LICENSE (canonical Apache 2.0
 # text), the generated changelog, vale's own synced style packages,
@@ -89,6 +89,18 @@ lint: lint-prose
 # Lint prose in Markdown files and source comments via vale.
 lint-prose *args:
     vale --output=proofhouse-agent.tmpl --glob='!{LICENSE,CHANGELOG.md,.vale/*,tmp/*,.claude/rules/*,.claude/worktrees/*,COMMIT_AGENTMSG,dist/*,node_modules/*,coverage/*,reports/*,.stryker-tmp/*}' {{ if args == "" { "." } else { args } }}
+
+# cspell is named by path so this reads the copy the lockfile pins
+# rather than whichever one a machine keeps on PATH. Which files the
+# walk covers is settled in .cspell.jsonc, apart from COMMIT_AGENTMSG:
+# that draft belongs to the commit-message gate, which spell-checks it
+# against a dictionary of its own. Passing a path with no matches is
+# not an error, so a caller can name one file without knowing whether
+# the config already excluded it.
+
+# Check spelling in every tracked file type via cspell.
+lint-spelling *args:
+    node_modules/.bin/cspell --config .cspell.jsonc --no-summary --no-progress --no-must-find-files --exclude COMMIT_AGENTMSG {{ if args == "" { "." } else { args } }}
 
 # --- Test ---
 

@@ -1,0 +1,17 @@
+AGENTMSG
+autostash
+cooldown
+EDITMSG
+goreleaser
+hardlinks
+lparen
+mktemp
+pipefail
+prek
+proofhouse
+rparen
+tmpl
+Tricolon
+vitest
+worktree
+worktrees
