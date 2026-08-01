@@ -17,6 +17,7 @@ osxkeychain
 pipefail
 prek
 proofhouse
+pypi
 pyproject
 rhysd
 rparen

@@ -380,6 +380,25 @@ typecheck:
 lock-check:
     pnpm install --frozen-lockfile --lockfile-only
 
+# Two files name the pnpm version: the packageManager field, which
+# decides what runs, and mise.toml, which installs it for a local
+# checkout. Renovate carries both in a single pull request, so the
+# ordinary path keeps them level and this recipe answers for the rest —
+# a hand edit to one of them, or a bump landed by anything else. It sits
+# outside `lint` on the grounds that neither file is source and a
+# disagreement here breaks nothing until somebody installs.
+
+# Check that package.json and mise.toml pin the same pnpm.
+[script]
+check-tool-pins:
+    manifest=$(node -p 'require("./package.json").packageManager.split("+")[0].split("@")[1]')
+    mise=$(grep -E '^pnpm *= *"' mise.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+    if [[ "$manifest" != "$mise" ]]; then
+        echo "pnpm pins disagree: packageManager $manifest, mise.toml $mise" >&2
+        exit 1
+    fi
+    echo "pnpm $manifest pinned consistently in package.json and mise.toml"
+
 # --- Utilities ---
 
 # Run once after cloning the repo, and whenever .vale.ini's Packages
