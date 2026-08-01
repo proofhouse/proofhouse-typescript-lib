@@ -222,9 +222,14 @@ fix-markdown *args:
 # tracked file, and it sits here because a new source file is the
 # commonest way an undeclared one appears. The Python repositories
 # place their own reuse gate in the equivalent list for that reason.
+#
+# The final two entries earn their place the same way. Neither the
+# packed tarball nor the workflow that builds it changes on its own:
+# whoever edits the library decides what leaves it and under which
+# runner, so one name covers the whole of that edit.
 
 # Run every TypeScript-flavored lint gate.
-lint-ts-all: lint-biome typecheck lint-eslint lint-deadcode lint-dup-code lint-architecture lint-reuse
+lint-ts-all: lint-biome typecheck lint-eslint lint-deadcode lint-dup-code lint-architecture lint-reuse lint-package lint-workflows
 
 # One entry point for every gate that reads the source tree, so a
 # contributor and a merge check always run the same set under the same
@@ -372,6 +377,36 @@ lint-architecture:
 lint-reuse:
     uvx --from 'reuse[charset-normalizer]==6.2.0' reuse --no-multiprocessing lint
 
+# Every gate before this one judges the tree as a contributor reads it.
+# This one judges the archive an installer unpacks. publint builds that
+# archive the way a registry would and holds the manifest to what came
+# out: an exports target absent from the pack, a files list that left
+# the compiler's output behind, a types condition ordered after the
+# import it is meant to precede. attw packs a second copy and follows
+# each entry point through the resolution a consumer's own compiler
+# performs, reporting where the walk lands on JavaScript with no
+# declarations beside it. Neither tool opens src at all, which is why
+# the recipe waits on `build` and why no hook runs it: a full compile
+# is more than a commit should cost.
+#
+# attw takes its entry points from the exports map, which this package
+# has declared since before there was anything to resolve. A package
+# whose only public surface is an executable hands the walk nothing and
+# has to name its entry points another way. The profile narrows the
+# verdict to the resolution modes an import-only package answers to,
+# and this one emits nothing a require could reach.
+#
+# publint spells a flag `--pack` as well and means the opposite thing
+# by it: which package manager should do the packing, not a request to
+# pack. It settles that question by itself here, so the flag belongs to
+# the second line alone and reading it across the two would quietly
+# change what the first one asks.
+
+# Check the packed package shape and its type resolution.
+lint-package: build
+    node_modules/.bin/publint
+    node_modules/.bin/attw --pack . --profile esm-only
+
 # --strict treats warnings as errors so the gate matches CI behavior;
 # per-rule tuning lives in .yamllint.yaml.
 
@@ -445,6 +480,14 @@ lint-editorconfig:
 # workflow-shape rules yamllint can't see. Pinned Docker image;
 # Renovate bumps the version + digest via the shared Justfile
 # customManager.
+#
+# `lint-ts-all` reaches this recipe now. It sat outside every aggregate
+# for as long as it was the only gate here pointed at a directory
+# instead of at the sources, which made it the one gate a contributor
+# had to remember by name. Workflow files rarely move without the code
+# they build moving too. GitHub runs the same check from a shared
+# caller workflow, and that is the side a hook would duplicate, so
+# there is none.
 
 # Lint GitHub Actions workflow files via actionlint.
 lint-workflows:

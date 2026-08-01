@@ -1,4 +1,5 @@
 AGENTMSG
+attw
 autostash
 cocogitto
 commitlint
@@ -21,6 +22,7 @@ osxkeychain
 pipefail
 prek
 proofhouse
+publint
 pydocstyle
 pylint
 pypi
