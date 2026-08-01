@@ -1,0 +1,34 @@
+# Supply-chain policy for installs in this repository. Each setting below
+# is load-bearing, so treat the block as a whole and do not loosen an
+# entry to get an install moving.
+
+# A published version has to sit for five days before pnpm will resolve
+# it here, the same cooldown the org Renovate preset applies. Transitive
+# packages and lockfile regeneration count too, which is what closes the
+# window a hijacked release would otherwise have.
+minimumReleaseAge: 7200
+
+# Without strict mode, a package still inside the cooldown gets written
+# into this file as an exclusion and installed regardless. Strict mode
+# refuses the resolution instead. When a version is rejected, reach for
+# an older pin rather than an exemption.
+minimumReleaseAgeStrict: true
+
+# An untrusted install script stops the install rather than being
+# skipped and reported afterwards. Should a package ever earn an
+# allowBuilds entry, that entry states why it needs to run code at
+# install time.
+strictDepBuilds: true
+
+# Treat engine ranges as binding. The setting belongs here because pnpm
+# 11 stopped honoring its .npmrc spelling.
+engineStrict: true
+
+# Before running anything, pnpm compares node_modules against the
+# lockfile and stops on a mismatch. Repairing the tree in passing would
+# mask exactly the drift this repository wants surfaced.
+verifyDepsBeforeRun: error
+
+# The recorded trust level for a package can go up but never down, so no
+# later install can quietly undo an earlier decision.
+trustPolicy: no-downgrade
