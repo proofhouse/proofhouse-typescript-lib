@@ -38,6 +38,29 @@ source_date_epoch := `git log -1 --format=%ct 2>/dev/null || echo "0"`
 # Default recipe
 default: test
 
+# --- Setup ---
+
+# The one command a fresh checkout needs. Running it a second time
+# costs little: the brew check short-circuits when every formula is
+# already present, and the style sync re-fetches what .vale.ini asks
+# for at the time. The runtime falls outside it, because mise.toml
+# pins Node and the packageManager field in package.json decides
+# which pnpm runs.
+
+# Set up the development environment.
+setup: install-brew install-tools
+
+# Install Homebrew dependencies from Brewfile.
+install-brew:
+    brew bundle check || brew bundle install
+
+# Today that means Vale's synced style packages; grows as new
+# sync-style tools land.
+
+# Refresh non-brew tooling.
+install-tools:
+    vale sync
+
 # --- Build ---
 
 # Compile dist: JavaScript, declarations, and the maps back to source.

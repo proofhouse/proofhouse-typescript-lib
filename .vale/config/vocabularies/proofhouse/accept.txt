@@ -150,3 +150,5 @@ org's
 yamllint
 configs
 [Ee]ditorconfig
+Brewfile
+uvx?
