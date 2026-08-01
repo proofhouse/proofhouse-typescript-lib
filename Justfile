@@ -42,13 +42,14 @@ default: test
 
 # The one command a fresh checkout needs. Running it a second time
 # costs little: the brew check short-circuits when every formula is
-# already present, and the style sync re-fetches what .vale.ini asks
-# for at the time. The runtime falls outside it, because mise.toml
-# pins Node and the packageManager field in package.json decides
-# which pnpm runs.
+# already present, the style sync re-fetches what .vale.ini asks for at
+# the time, and the hook install writes over .git/hooks with whatever
+# the current config names. The runtime falls outside it, because
+# mise.toml pins Node and the packageManager field in package.json
+# decides which pnpm runs.
 
 # Set up the development environment.
-setup: install-brew install-tools
+setup: install-brew install-tools prek-install
 
 # Install Homebrew dependencies from Brewfile.
 install-brew:
@@ -264,6 +265,20 @@ lint-just:
 lint-editorconfig:
     editorconfig-checker
 
+# Running the same gates the commit-msg hook runs surfaces message
+# problems while iterating rather than at commit time. Reads the draft
+# from the repo-root COMMIT_AGENTMSG file (gitignored; see AGENTS.md for
+# the workflow) and runs the commit-msg stage through prek, which fires
+# the four shared hooks from proofhouse/pre-commit-hooks:
+# commit-trailers, commitlint, vale-commit-msg, and cspell-commit-msg.
+# The real gate stays the prek commit-msg hook on .git/COMMIT_EDITMSG;
+# this recipe only mirrors it. Commit the validated draft with
+# `git commit -F COMMIT_AGENTMSG`.
+
+# Pre-validate a drafted commit message against the commit-msg gates.
+lint-commit-msg:
+    prek run --stage commit-msg --commit-msg-filename COMMIT_AGENTMSG
+
 # --- Test ---
 
 # Run tests
@@ -295,6 +310,25 @@ lock-check:
 # Sync Vale styles and dictionaries.
 vale-sync:
     vale sync
+
+# Run pre-commit hooks on changed files (the everyday invocation).
+prek:
+    prek
+
+# Useful after a hook config change or before a release sweep.
+
+# Run pre-commit hooks on every file in the tree.
+prek-all:
+    prek run --all-files
+
+# The hooks cover commit-msg, pre-commit, and pre-push. `just setup`
+# runs this automatically; it stays a separate recipe so contributors
+# can re-install the hooks (which modify .git/) without re-running the
+# whole setup.
+
+# Install the project's pre-commit hooks.
+prek-install:
+    prek install -t commit-msg -t pre-commit -t pre-push
 
 # Check that the two-compiler wiring is intact. typescript supplies the
 # JS API that typed lint tooling loads, and tsc7, an alias of

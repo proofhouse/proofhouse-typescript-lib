@@ -1,6 +1,7 @@
 AGENTMSG
 autostash
 cocogitto
+commitlint
 cooldown
 EDITMSG
 goreleaser
