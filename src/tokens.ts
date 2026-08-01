@@ -4,11 +4,11 @@
 // Token kinds and the token record the lexer produces.
 
 /**
- * The token kinds the expression grammar deals in: an integer literal, the four
- * arithmetic operators, and the two parentheses.
+ * The token kinds the expression grammar deals in. One kind covers integer literals,
+ * and the rest each name a single operator or parenthesis character.
  *
  * {@link TokenKind} derives its union from this array, so the runtime list and the type
- * cannot drift apart, and a caller can iterate the kinds without restating them.
+ * can't drift apart, and a caller can iterate the kinds without restating them.
  */
 export const TOKEN_KINDS = [
   "number",
@@ -20,7 +20,7 @@ export const TOKEN_KINDS = [
   "rparen",
 ] as const;
 
-/** Classification of a lexed token. */
+/** Classification of one scanned token. */
 export type TokenKind = (typeof TOKEN_KINDS)[number];
 
 /** One token produced by the lexer, pairing the text it matched with its kind. */
@@ -32,7 +32,7 @@ export interface Token {
   /**
    * Where the token starts in the source text, as a UTF-16 code-unit index.
    *
-   * That is the index JavaScript strings themselves use, so `text.slice(offset)` begins
+   * That's the index JavaScript strings themselves use, so `text.slice(offset)` begins
    * at the token. A character outside the basic multilingual plane counts as two.
    */
   readonly offset: number;

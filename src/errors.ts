@@ -11,13 +11,13 @@
  */
 export class ExpressionError extends Error {}
 
-/** Raised when the lexer meets a character that cannot begin a token. */
+/** Raised when the lexer meets a character that can't begin a token. */
 export class LexError extends ExpressionError {
   /** Where the offending character sits, as a UTF-16 code-unit index. */
   readonly offset: number;
 
   /**
-   * @param character - The character that could not begin a token.
+   * @param character - The character that couldn't begin a token.
    * @param offset - UTF-16 code-unit index of that character in the source text.
    */
   constructor(character: string, offset: number) {

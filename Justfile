@@ -67,6 +67,29 @@ clean:
     rm -rf dist
     rm -f *.tsbuildinfo
 
+# --- Lint ---
+
+# One entry point for every gate that reads the source tree. Prose is
+# the only member today and each linter added later appends itself to
+# the dependency list, so a contributor and a merge check always run
+# the same set under the same name.
+
+# Run every linter that operates on the source tree.
+lint: lint-prose
+
+# The glob steers vale away from the LICENSE (canonical Apache 2.0
+# text), the generated changelog, vale's own synced style packages,
+# scratch directories, the shared rule files and worktrees under
+# .claude/, the COMMIT_AGENTMSG draft (.vale.ini scopes that file to
+# the stricter commit rules and the commit-msg gate reads it there),
+# the dependency tree, compiled output, and the coverage, report, and
+# mutation scratch trees. Whatever survives the glob is inspected under
+# the per-file-type rules in .vale.ini.
+
+# Lint prose in Markdown files and source comments via vale.
+lint-prose *args:
+    vale --output=proofhouse-agent.tmpl --glob='!{LICENSE,CHANGELOG.md,.vale/*,tmp/*,.claude/rules/*,.claude/worktrees/*,COMMIT_AGENTMSG,dist/*,node_modules/*,coverage/*,reports/*,.stryker-tmp/*}' {{ if args == "" { "." } else { args } }}
+
 # --- Test ---
 
 # Run tests
@@ -91,6 +114,13 @@ lock-check:
     pnpm install --frozen-lockfile --lockfile-only
 
 # --- Utilities ---
+
+# Run once after cloning the repo, and whenever .vale.ini's Packages
+# list changes. CI runs this before `just lint-prose`.
+
+# Sync Vale styles and dictionaries.
+vale-sync:
+    vale sync
 
 # Check that the two-compiler wiring is intact. typescript supplies the
 # JS API that typed lint tooling loads, and tsc7, an alias of
