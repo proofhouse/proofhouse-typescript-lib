@@ -219,7 +219,7 @@ fix-markdown *args:
 # runs nothing of its own.
 
 # Run every TypeScript-flavored lint gate.
-lint-ts-all: lint-biome typecheck
+lint-ts-all: lint-biome typecheck lint-eslint
 
 # One entry point for every gate that reads the source tree, so a
 # contributor and a merge check always run the same set under the same
@@ -273,6 +273,22 @@ lint-markdown *args:
 # Lint JSON, JS, and TS files via biome.
 lint-biome *args:
     node_modules/.bin/biome check --error-on-warnings --files-ignore-unknown=true {{ if args == "" { "." } else { args } }}
+
+# The rules behind this one consult the type checker, which lets them
+# settle questions no single file's text can answer: whether a promise
+# was ever awaited, whether a condition had another outcome available to
+# it, whether a `switch` covers the union it opens. Two entries in
+# biome.json sit at off for that reason. noUnnecessaryConditions and
+# useAwait have counterparts here, no-unnecessary-condition and
+# require-await, that judge the same code with the types to hand. The
+# invocation names no path: the parser service resolves tsconfig.json
+# per file, and eslint.config.ts lists the roots that file already
+# includes. A warning ends the run the way an error does, which is what
+# turns a suppression comment outliving its finding into a failure.
+
+# Lint TypeScript against the type-aware eslint rule set.
+lint-eslint:
+    node_modules/.bin/eslint . --max-warnings=0
 
 # --strict treats warnings as errors so the gate matches CI behavior;
 # per-rule tuning lives in .yamllint.yaml.

@@ -121,7 +121,7 @@ describe("tokenize rejections", () => {
     const error = lexErrorFrom(text);
 
     expect(error.offset).toBe(offset);
-    expect(error.message).toBe(`unexpected character "${character}" at offset ${offset}`);
+    expect(error.message).toBe(`unexpected character "${character}" at offset ${String(offset)}`);
     expect(error.name).toBe("LexError");
     expect(error).toBeInstanceOf(ExpressionError);
   });

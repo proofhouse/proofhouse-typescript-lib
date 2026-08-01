@@ -18,7 +18,7 @@ const manifestUrl: URL = new URL("../package.json", import.meta.url);
  * of the copy it actually resolved rather than one frozen into the compiled output.
  *
  * @returns The manifest version string, such as `0.0.0`.
- * @throws {Error} When the manifest carries no string version field.
+ * @throws {@link Error} When the manifest carries no string version field.
  */
 export function version(): string {
   const manifest: unknown = JSON.parse(readFileSync(manifestUrl, "utf8"));

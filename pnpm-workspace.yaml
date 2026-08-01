@@ -33,3 +33,12 @@ verifyDepsBeforeRun: error
 # The recorded trust level for a package can go up but never down, so no
 # later install can quietly undo an earlier decision.
 trustPolicy: no-downgrade
+
+# Version overrides. This file is where pnpm 11 looks for them; the
+# `pnpm` field in package.json is read no longer and warned about.
+overrides:
+  # The TSDoc plugin asks for @typescript-eslint/utils ~8.56.0, which
+  # the 8.65.0 pinned beside it falls outside of, so a plain install
+  # lays down a second copy. The typed rules and that plugin have to
+  # agree on one.
+  "@typescript-eslint/utils": "8.65.0"

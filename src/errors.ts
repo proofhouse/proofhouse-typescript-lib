@@ -23,7 +23,7 @@ export class LexError extends ExpressionError {
    * @param offset - UTF-16 code-unit index of that character in the source text.
    */
   constructor(character: string, offset: number) {
-    super(`unexpected character "${character}" at offset ${offset}`);
+    super(`unexpected character "${character}" at offset ${String(offset)}`);
     this.name = "LexError";
     this.offset = offset;
   }
