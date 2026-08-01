@@ -149,3 +149,4 @@ lockfile[s]?
 org's
 yamllint
 configs
+[Ee]ditorconfig
