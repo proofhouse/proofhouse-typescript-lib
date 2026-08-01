@@ -219,7 +219,7 @@ fix-markdown *args:
 # runs nothing of its own.
 
 # Run every TypeScript-flavored lint gate.
-lint-ts-all: lint-biome typecheck lint-eslint lint-deadcode lint-dup-code
+lint-ts-all: lint-biome typecheck lint-eslint lint-deadcode lint-dup-code lint-architecture
 
 # One entry point for every gate that reads the source tree, so a
 # contributor and a merge check always run the same set under the same
@@ -326,6 +326,27 @@ lint-deadcode:
 # Report copy-pasted passages across the sources and the suite.
 lint-dup-code:
     node_modules/.bin/jscpd --threshold 0 --min-tokens 50 src tests
+
+# A layered library stays layered only while something checks. depcruise
+# resolves every import in the tree into one graph and holds it to the
+# contracts written in .dependency-cruiser.cjs. The layer order comes
+# first. Beside it sit a ban on loops, a ban on files stranded off the
+# graph, a requirement that the walk from the entry point arrive at each
+# source file, and a fence around the test helpers this package will
+# publish later. The Python repositories draw their layer contract with
+# import-linter, which has no answer for the two rules about reaching.
+#
+# A second pass follows and asks whether the first one saw anything at
+# all. The parse runs under the library compiler in devDependencies, so
+# a tree that later carries TypeScript 7 by itself would walk nothing
+# and report that cleanly. Feeding the summary to jq and demanding a
+# module count above zero makes an empty walk fail instead. The sources
+# on their own settle the question.
+
+# Check imports against the layer order and the reachability contracts.
+lint-architecture:
+    node_modules/.bin/depcruise src tests --config .dependency-cruiser.cjs
+    node_modules/.bin/depcruise src --config .dependency-cruiser.cjs -T json | jq -e '.summary.totalCruised > 0' > /dev/null
 
 # --strict treats warnings as errors so the gate matches CI behavior;
 # per-rule tuning lives in .yamllint.yaml.

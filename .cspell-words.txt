@@ -4,6 +4,7 @@ cocogitto
 commitlint
 cooldown
 deadcode
+depcruise
 EDITMSG
 goreleaser
 hardlinks
