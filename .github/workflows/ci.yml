@@ -1,11 +1,11 @@
 ---
 # Merge gate for the library. On every pull request and every push to
-# `main` it runs the lint set, the test suite over the runner and Node
-# combinations this package claims to support, the lock-drift check,
-# and a smoke suite that loads the sources as raw TypeScript. Four
-# separate jobs rather than one: a flake then costs a rerun of the gate
-# that flaked, and the status list says which gate turned the change
-# away.
+# `main` it runs the lint set, the compiler over the sources and the
+# tests, the test suite over the runner and Node combinations this
+# package claims to support, the lock-drift check, and a smoke suite
+# that loads the sources as raw TypeScript. Five separate jobs rather
+# than one: a flake then costs a rerun of the gate that flaked, and the
+# status list says which gate turned the change away.
 #
 # The lint job calls the `lint` aggregate, so a gate appended to it in
 # the Justfile later needs no edit here. That aggregate covers the
@@ -111,6 +111,43 @@ jobs:
 
       - name: Lint
         run: just lint
+
+  # `just lint` above reaches the compiler too, by way of the TypeScript
+  # aggregate. It runs a second time here for the sake of the status
+  # list: a type error is the failure a change is most likely to bring,
+  # and a reviewer should read it off the check name rather than out of
+  # a lint log. A full pass costs well under a second.
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Harden the runner
+        uses: step-security/harden-runner@bf7454d06d71f1098171f2acdf0cd4708d7b5920 # v2.20.0
+        with:
+          egress-policy: audit
+
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up just
+        uses: proofhouse/github-actions/.github/actions/setup-just@131c527df05799916f98d8c4b26eb225dbfc7845 # v0.4.0
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
+
+      - name: Set up Node
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6.5.0
+        with:
+          node-version: '24.18.1'
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: just typecheck
 
   lock-check:
     name: lock-check
