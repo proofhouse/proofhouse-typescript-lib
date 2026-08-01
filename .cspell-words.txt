@@ -3,11 +3,13 @@ autostash
 cocogitto
 commitlint
 cooldown
+deadcode
 EDITMSG
 goreleaser
 hardlinks
 hardwrap
 jiti
+knip
 linuxbrew
 lockfiles
 lparen

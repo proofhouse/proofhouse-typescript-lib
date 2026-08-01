@@ -219,7 +219,7 @@ fix-markdown *args:
 # runs nothing of its own.
 
 # Run every TypeScript-flavored lint gate.
-lint-ts-all: lint-biome typecheck lint-eslint
+lint-ts-all: lint-biome typecheck lint-eslint lint-deadcode
 
 # One entry point for every gate that reads the source tree, so a
 # contributor and a merge check always run the same set under the same
@@ -289,6 +289,22 @@ lint-biome *args:
 # Lint TypeScript against the type-aware eslint rule set.
 lint-eslint:
     node_modules/.bin/eslint . --max-warnings=0
+
+# Neither of the two gates above can see past the file it has open, so a
+# function every caller stopped calling still typechecks and still
+# formats. knip resolves the imports instead and reports what the
+# resolution never arrives at: a module, an export, a type, or a package
+# in the manifest. `includeEntryExports` in knip.json holds the exported
+# surface to that same standard. Everything a library publishes leaves
+# through one module, and without that setting the walk would stop at
+# its door and take the whole surface on trust. What the setting really
+# asks is whether the suite covers the surface, since a test is the only
+# caller a published name has in here. The ignore list beside it names
+# the packages this file runs by path, which no import can reach.
+
+# Check for unused files, exports, and dependencies via knip.
+lint-deadcode:
+    node_modules/.bin/knip
 
 # --strict treats warnings as errors so the gate matches CI behavior;
 # per-rule tuning lives in .yamllint.yaml.

@@ -163,3 +163,4 @@ TSDoc
 jiti
 pydocstyle
 [Pp]yrefly
+knip

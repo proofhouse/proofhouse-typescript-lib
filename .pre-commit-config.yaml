@@ -123,6 +123,18 @@ repos:
         types: [ts]
         pass_filenames: false
 
+      # A deletion elsewhere in the tree is what usually strands an
+      # export, and the file holding that export need not be staged for
+      # it to happen. So this hook takes no filenames either, and knip
+      # resolves the imports from the entry points down whatever the
+      # commit touched.
+      - id: knip
+        name: knip dead code check
+        entry: just lint-deadcode
+        language: system
+        types: [ts]
+        pass_filenames: false
+
       # The workspace file carries the resolution and supply-chain
       # settings, so an edit to it re-verifies the lockfile the same as
       # an edit to the manifest does.
