@@ -80,6 +80,16 @@ test *args:
 typecheck:
     node node_modules/tsc7/bin/tsc -p tsconfig.json
 
+# --- Dependencies ---
+
+# Check pnpm-lock.yaml against package.json. The lockfile-only flag is
+# what makes this a check and not an install: pnpm compares the two
+# files, reports every specifier that disagrees, and leaves node_modules
+# alone either way. CI runs it on every pull request; contributors run a
+# plain install and commit the lockfile it writes.
+lock-check:
+    pnpm install --frozen-lockfile --lockfile-only
+
 # --- Utilities ---
 
 # Check that the two-compiler wiring is intact. typescript supplies the
