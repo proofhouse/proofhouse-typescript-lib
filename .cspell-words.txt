@@ -7,6 +7,7 @@ EDITMSG
 goreleaser
 hardlinks
 hardwrap
+jiti
 linuxbrew
 lockfiles
 lparen
@@ -17,8 +18,10 @@ osxkeychain
 pipefail
 prek
 proofhouse
+pydocstyle
 pypi
 pyproject
+pyrefly
 rhysd
 rparen
 rumdl

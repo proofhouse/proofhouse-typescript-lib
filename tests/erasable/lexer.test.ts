@@ -18,13 +18,13 @@ const ADDITION_KINDS: readonly TokenKind[] = ["number", "plus", "number"];
 
 const REJECTED_OFFSET = 2;
 
-test("the public entry point tokenizes under Node's type stripping", () => {
+await test("the public entry point tokenizes under Node's type stripping", () => {
   const kinds = tokenize("1+2").map((token) => token.kind);
 
   assert.deepEqual(kinds, ADDITION_KINDS);
 });
 
-test("a rejected character still arrives as a LexError with its offset", () => {
+await test("a rejected character still arrives as a LexError with its offset", () => {
   assert.throws(
     () => {
       tokenize("1+$");

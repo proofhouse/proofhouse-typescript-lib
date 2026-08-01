@@ -158,3 +158,8 @@ packageManager
 shellcheck
 devDependencies
 npm
+TSDoc
+[Ee]slint
+jiti
+pydocstyle
+[Pp]yrefly

@@ -33,7 +33,7 @@ const SINGLE_CHAR_KINDS: ReadonlyMap<string, TokenKind> = new Map<string, TokenK
  *
  * @param text - The expression source to scan.
  * @returns The tokens in the order they appear in the source.
- * @throws {LexError} When the text holds a character that can't begin a token.
+ * @throws {@link LexError} When the text holds a character that can't begin a token.
  */
 export function tokenize(text: string): readonly Token[] {
   const tokens: Token[] = [];
