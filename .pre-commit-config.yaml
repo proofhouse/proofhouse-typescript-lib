@@ -157,6 +157,18 @@ repos:
         types: [ts]
         pass_filenames: false
 
+      # Alone among the hooks here this one declares no file filter.
+      # Each of the others answers for one language and can sit out a
+      # commit that leaves that language alone, whereas an undeclared
+      # license turns up in whatever kind of file someone adds next.
+      # The default stages apply, so the check runs at the commit and
+      # again before the push.
+      - id: reuse
+        name: reuse lint
+        entry: just lint-reuse
+        language: system
+        pass_filenames: false
+
       # The workspace file carries the resolution and supply-chain
       # settings, so an edit to it re-verifies the lockfile the same as
       # an edit to the manifest does.
