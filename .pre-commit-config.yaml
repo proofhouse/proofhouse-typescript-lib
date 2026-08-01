@@ -146,6 +146,17 @@ repos:
         types: [ts]
         pass_filenames: false
 
+      # The contracts here read the whole import graph out of the entry
+      # point, so the set of staged files tells the check nothing it can
+      # use. An upward import also breaks a rule about the file it
+      # arrives at, which need not be in the commit at all.
+      - id: depcruise
+        name: dependency-cruiser architecture check
+        entry: just lint-architecture
+        language: system
+        types: [ts]
+        pass_filenames: false
+
       # The workspace file carries the resolution and supply-chain
       # settings, so an edit to it re-verifies the lockfile the same as
       # an edit to the manifest does.
