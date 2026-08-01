@@ -37,6 +37,31 @@ default: test
 build:
     node node_modules/tsc7/bin/tsc -p tsconfig.build.json
 
+# Build the package twice in throwaway clones of the committed tree and
+# fail if the two tarballs disagree. pnpm's packer is deterministic on
+# its own and reads no SOURCE_DATE_EPOCH, which is why the build never
+# threads that variable through and why a digest mismatch points at the
+# compiler rather than the archive: this is the standing check that
+# TypeScript 7's parallel emit lays down the same bytes every run.
+# Each clone gets the working tree's lockfile copied in, so the two
+# installs resolve identical dependencies even while that file is
+# untracked.
+[script]
+build-repro-check:
+    dir_a=$(mktemp -d)
+    dir_b=$(mktemp -d)
+    trap 'rm -rf "$dir_a" "$dir_b"' EXIT
+    for dir in "$dir_a" "$dir_b"; do
+        git clone --quiet --no-hardlinks . "$dir"
+        cp -f pnpm-lock.yaml "$dir/pnpm-lock.yaml"
+        (cd "$dir" && pnpm install --frozen-lockfile && just build && pnpm pack)
+    done
+    digests=$(cd "$dir_a" && shasum -a 256 -- *.tgz)
+    if ! (cd "$dir_b" && shasum -a 256 --check --strict <<< "$digests"); then
+        echo "package digests differ between builds — the build is not reproducible" >&2
+        exit 1
+    fi
+
 # Drop build output
 clean:
     rm -rf dist
