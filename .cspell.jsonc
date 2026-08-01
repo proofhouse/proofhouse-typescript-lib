@@ -11,6 +11,7 @@
     // enableGlobDot lets the walk descend into .git, where loose objects
     // and the sample hooks flag dozens of words nobody wrote.
     ".git/**/*",
+    ".rumdl_cache/**/*",
     ".stryker-tmp/**/*",
     ".vale/**/*",
     "coverage/**/*",

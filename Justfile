@@ -67,6 +67,23 @@ clean:
     rm -rf dist
     rm -f *.tsbuildinfo
 
+# --- Format ---
+
+# Rewrites in place. Pair with `fix-markdown` for semantic lint fixes.
+
+# Format Markdown files (whitespace, list markers, code fence styles).
+format-markdown *args:
+    rumdl fmt {{ if args == "" { "." } else { args } }}
+
+# --- Fix ---
+
+# Complement to `format-markdown` (which only rewrites whitespace and
+# ordering, not semantic lints).
+
+# Apply rumdl's auto-fixable rules to Markdown files.
+fix-markdown *args:
+    rumdl check --fix {{ if args == "" { "." } else { args } }}
+
 # --- Lint ---
 
 # One entry point for every gate that reads the source tree. Each
@@ -75,7 +92,7 @@ clean:
 # name.
 
 # Run every linter that operates on the source tree.
-lint: lint-prose lint-spelling
+lint: lint-prose lint-spelling lint-markdown
 
 # The glob steers vale away from the LICENSE (canonical Apache 2.0
 # text), the generated changelog, vale's own synced style packages,
@@ -101,6 +118,13 @@ lint-prose *args:
 # Check spelling in every tracked file type via cspell.
 lint-spelling *args:
     node_modules/.bin/cspell --config .cspell.jsonc --no-summary --no-progress --no-must-find-files --exclude COMMIT_AGENTMSG {{ if args == "" { "." } else { args } }}
+
+# rumdl handles structural lints (heading style, list marker style,
+# code fence style); vale handles prose.
+
+# Lint Markdown files against the project's .rumdl.toml ruleset.
+lint-markdown *args:
+    rumdl check {{ if args == "" { "." } else { args } }}
 
 # --- Test ---
 

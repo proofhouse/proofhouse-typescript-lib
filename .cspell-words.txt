@@ -4,12 +4,14 @@ cooldown
 EDITMSG
 goreleaser
 hardlinks
+hardwrap
 lparen
 mktemp
 pipefail
 prek
 proofhouse
 rparen
+rumdl
 tmpl
 Tricolon
 vitest
