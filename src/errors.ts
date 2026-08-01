@@ -28,3 +28,23 @@ export class LexError extends ExpressionError {
     this.offset = offset;
   }
 }
+
+/** Raised when the token stream doesn't form an expression. */
+export class ParseError extends ExpressionError {
+  /** Where the parser stopped, as a UTF-16 code-unit index. */
+  readonly offset: number;
+
+  /**
+   * The class assembles the message from its parts, so every raise site reports the same
+   * shape and a caller reading one error has read them all.
+   *
+   * @param expected - What the grammar allowed at that point, such as `an operand`.
+   * @param found - What stood there instead, quoted where it came from the source.
+   * @param offset - UTF-16 code-unit index the report points at.
+   */
+  constructor(expected: string, found: string, offset: number) {
+    super(`expected ${expected}, found ${found} at offset ${String(offset)}`);
+    this.name = "ParseError";
+    this.offset = offset;
+  }
+}
