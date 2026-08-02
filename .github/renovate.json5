@@ -67,8 +67,8 @@
   customManagers: [
     {
       // uvx-pinned Python tools in the Justfile have no native manager, so
-      // the pin is read off the command line instead. No recipe carries one
-      // yet; the manager waits here so the first is tracked as it lands.
+      // the pin is read off the command line instead. The lint-reuse recipe
+      // carries the one pin this reads today, extras included.
       customType: "regex",
       managerFilePatterns: ["/^Justfile$/"],
       matchStrings: ["--from '(?<depName>[a-z-]+)(\\[[a-z-,]+\\])?==(?<currentValue>[0-9.]+)'"],

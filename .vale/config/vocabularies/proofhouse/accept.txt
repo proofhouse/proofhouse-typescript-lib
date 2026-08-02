@@ -168,3 +168,4 @@ jscpd
 pylint
 publint
 attw('s)?
+jq
