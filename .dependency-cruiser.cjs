@@ -8,16 +8,26 @@
 
 "use strict";
 
-// The library read top to bottom. The formatter writes a tree back out as text and the
-// evaluator reduces one to a number, and each of them asks `parse` for a tree when it is
-// handed text instead. `parse` drives the lexer and assembles the tree, the lexer spells
-// text into tokens, and the errors at the foot answer to none of them. An import may
-// travel down this list and nowhere else, which the rules built underneath the array
-// state once per layer. A row that holds several names seats them at one height, where
-// each of them is closed to the rest as well as to everything above. Rows for the cache
-// and the concurrency work belong here when those modules arrive, and adding one is an
-// edit to this array alone.
-const LAYERS = [["formatter", "evaluator"], "parser", "ast", "lexer", "tokens", "errors"];
+// The library read top to bottom. The concurrency work sits over all of it: a cache and a
+// batch runner drive the pieces below them and nothing below knows either one exists. The
+// formatter writes a tree back out as text and the evaluator reduces one to a number, and
+// each of them asks `parse` for a tree when it is handed text instead. `parse` drives the
+// lexer and assembles the tree, the lexer spells text into tokens, and the errors at the
+// foot answer to none of them. An import may travel down this list and nowhere else, which
+// the rules built underneath the array state once per layer. A row that holds several
+// names seats them at one height, where each of them is closed to the rest as well as to
+// everything above. A name ending in a slash is a directory rather than a module, and
+// every file under it shares the one height. Adding a layer stays an edit to this array
+// alone.
+const LAYERS = [
+  "concurrency/",
+  ["formatter", "evaluator"],
+  "parser",
+  "ast",
+  "lexer",
+  "tokens",
+  "errors",
+];
 
 // One name and a row of names read the same way from here down.
 function asRow(entry) {
@@ -27,17 +37,34 @@ function asRow(entry) {
   return [entry];
 }
 
+// Which files an entry stands for. A directory reaches whatever is under it, at whatever
+// depth, while a plain name reaches the one module spelling it.
+function pathOf(layer) {
+  if (layer.endsWith("/")) {
+    return `^src/${layer}`;
+  }
+  return `^src/${layer}[.]ts$`;
+}
+
+// The entry as prose reads it, without the mark that made it a directory.
+function nameOf(layer) {
+  if (layer.endsWith("/")) {
+    return layer.slice(0, -1);
+  }
+  return layer;
+}
+
 const rows = LAYERS.map(asRow);
 
 const layerRules = rows.slice(1).flatMap((row, index) => {
   const higher = rows.slice(0, index + 1).flat();
-  const reach = higher.join(" or ");
+  const reach = higher.map(nameOf).join(" or ");
   return row.map((layer) => ({
-    name: `no-${layer}-to-upper`,
-    comment: `Imports run down the layer list. ${layer} may not reach ${reach}.`,
+    name: `no-${nameOf(layer)}-to-upper`,
+    comment: `Imports run down the layer list. ${nameOf(layer)} may not reach ${reach}.`,
     severity: "error",
-    from: { path: `^src/${layer}[.]ts$` },
-    to: { path: `^src/(${higher.join("|")})[.]ts$` },
+    from: { path: pathOf(layer) },
+    to: { path: higher.map(pathOf) },
   }));
 });
 
@@ -45,13 +72,17 @@ const siblingRules = rows.flatMap((row) =>
   row.flatMap((layer) =>
     row
       .filter((sibling) => sibling !== layer)
-      .map((sibling) => ({
-        name: `no-${layer}-to-${sibling}`,
-        comment: `${layer} and ${sibling} stand at one height, so neither one imports the other.`,
-        severity: "error",
-        from: { path: `^src/${layer}[.]ts$` },
-        to: { path: `^src/${sibling}[.]ts$` },
-      })),
+      .map((sibling) => {
+        const here = nameOf(layer);
+        const there = nameOf(sibling);
+        return {
+          name: `no-${here}-to-${there}`,
+          comment: `${here} and ${there} stand at one height, so neither one imports the other.`,
+          severity: "error",
+          from: { path: pathOf(layer) },
+          to: { path: pathOf(sibling) },
+        };
+      }),
   ),
 );
 

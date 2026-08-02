@@ -44,6 +44,9 @@ export {
   type UnaryOp,
   type UnaryOperator,
 } from "./ast.ts";
+export { asyncOnce } from "./concurrency/asyncOnce.ts";
+export { evaluateConcurrent } from "./concurrency/evaluateConcurrent.ts";
+export { type AsyncEvaluator, ExprCache } from "./concurrency/exprCache.ts";
 export { DivisionByZeroError, ExpressionError, LexError, ParseError } from "./errors.ts";
 export { evaluate, evaluateText, type Rational } from "./evaluator.ts";
 export { formatExpr } from "./formatter.ts";
