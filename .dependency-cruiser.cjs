@@ -8,30 +8,58 @@
 
 "use strict";
 
-// The library read top to bottom. The evaluator reduces a tree to a number and asks
-// `parse` for the tree when it is handed text instead, `parse` drives the lexer and
-// assembles the tree, the lexer spells text into tokens, and the errors at the foot
-// answer to none of them. An import may travel down this list and nowhere else, which
-// the rules built underneath the array state once per layer. Rows for the cache and the
-// concurrency work belong here when those modules arrive, and adding one is an edit to
-// this array alone.
-const LAYERS = ["evaluator", "parser", "ast", "lexer", "tokens", "errors"];
+// The library read top to bottom. The formatter writes a tree back out as text and the
+// evaluator reduces one to a number, and each of them asks `parse` for a tree when it is
+// handed text instead. `parse` drives the lexer and assembles the tree, the lexer spells
+// text into tokens, and the errors at the foot answer to none of them. An import may
+// travel down this list and nowhere else, which the rules built underneath the array
+// state once per layer. A row that holds several names seats them at one height, where
+// each of them is closed to the rest as well as to everything above. Rows for the cache
+// and the concurrency work belong here when those modules arrive, and adding one is an
+// edit to this array alone.
+const LAYERS = [["formatter", "evaluator"], "parser", "ast", "lexer", "tokens", "errors"];
 
-const layerRules = LAYERS.slice(1).map((layer, index) => {
-  const higher = LAYERS.slice(0, index + 1);
-  return {
+// One name and a row of names read the same way from here down.
+function asRow(entry) {
+  if (Array.isArray(entry)) {
+    return entry;
+  }
+  return [entry];
+}
+
+const rows = LAYERS.map(asRow);
+
+const layerRules = rows.slice(1).flatMap((row, index) => {
+  const higher = rows.slice(0, index + 1).flat();
+  const reach = higher.join(" or ");
+  return row.map((layer) => ({
     name: `no-${layer}-to-upper`,
-    comment: `Imports run down the layer list. ${layer} may not reach ${higher.join(" or ")}.`,
+    comment: `Imports run down the layer list. ${layer} may not reach ${reach}.`,
     severity: "error",
     from: { path: `^src/${layer}[.]ts$` },
     to: { path: `^src/(${higher.join("|")})[.]ts$` },
-  };
+  }));
 });
+
+const siblingRules = rows.flatMap((row) =>
+  row.flatMap((layer) =>
+    row
+      .filter((sibling) => sibling !== layer)
+      .map((sibling) => ({
+        name: `no-${layer}-to-${sibling}`,
+        comment: `${layer} and ${sibling} stand at one height, so neither one imports the other.`,
+        severity: "error",
+        from: { path: `^src/${layer}[.]ts$` },
+        to: { path: `^src/${sibling}[.]ts$` },
+      })),
+  ),
+);
 
 /** @type {import("dependency-cruiser").IConfiguration} */
 module.exports = {
   forbidden: [
     ...layerRules,
+    ...siblingRules,
     {
       name: "no-testing-in-production",
       comment:
