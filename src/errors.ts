@@ -48,3 +48,17 @@ export class ParseError extends ExpressionError {
     this.offset = offset;
   }
 }
+
+/**
+ * Raised when evaluation meets a divisor that works out to zero.
+ *
+ * This error carries no offset where its siblings each carry one. The tree the
+ * evaluator walks holds no source positions, so what gets reported here is a fact about
+ * the tree rather than about a span of the text that spelled it.
+ */
+export class DivisionByZeroError extends ExpressionError {
+  constructor() {
+    super("division by zero");
+    this.name = "DivisionByZeroError";
+  }
+}
