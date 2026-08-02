@@ -169,3 +169,4 @@ pylint
 publint
 attw('s)?
 jq
+[Ee]xpr

@@ -8,12 +8,14 @@
 
 "use strict";
 
-// The library read top to bottom. `parse` drives the lexer and assembles the tree, the
-// lexer spells text into tokens, and the errors at the foot answer to none of them. An
-// import may travel down this list and nowhere else, which the rules built underneath
-// the array state once per layer. Rows for the cache and the concurrency work belong
-// here when those modules arrive, and adding one is an edit to this array alone.
-const LAYERS = ["parser", "ast", "lexer", "tokens", "errors"];
+// The library read top to bottom. The evaluator reduces a tree to a number and asks
+// `parse` for the tree when it is handed text instead, `parse` drives the lexer and
+// assembles the tree, the lexer spells text into tokens, and the errors at the foot
+// answer to none of them. An import may travel down this list and nowhere else, which
+// the rules built underneath the array state once per layer. Rows for the cache and the
+// concurrency work belong here when those modules arrive, and adding one is an edit to
+// this array alone.
+const LAYERS = ["evaluator", "parser", "ast", "lexer", "tokens", "errors"];
 
 const layerRules = LAYERS.slice(1).map((layer, index) => {
   const higher = LAYERS.slice(0, index + 1);
