@@ -12,6 +12,9 @@ const config: ViteUserConfig = defineConfig({
     // Naming it alone would drop the defaults with `node_modules` among them, because
     // this key is an assignment and not an addition.
     exclude: [...configDefaults.exclude, "tests/erasable/**"],
+    // Settings every property shares, put in place before the first suite loads rather
+    // than restated at the head of each one.
+    setupFiles: ["tests/setup-fc.ts"],
     // Fixed order lets one test depend on what another leaves behind. The suite
     // keeps passing while that coupling hardens. Randomizing the files and the
     // tests within them makes the dependency fail instead. Every run reports its

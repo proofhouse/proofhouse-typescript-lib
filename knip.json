@@ -1,6 +1,12 @@
 {
   "$schema": "./node_modules/knip/schema.json",
-  "entry": ["src/index.ts", "tests/types/*.types.ts", "scripts/check-lcov.mjs"],
+  "entry": [
+    "src/index.ts",
+    "src/testing/index.ts",
+    "tests/types/*.types.ts",
+    "tests/setup-*.ts",
+    "scripts/check-lcov.mjs"
+  ],
   "includeEntryExports": true,
   "ignoreDependencies": [
     "@arethetypeswrong/cli",

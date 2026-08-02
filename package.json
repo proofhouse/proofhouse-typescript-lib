@@ -9,6 +9,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "default": "./dist/testing/index.js"
     }
   },
   "engines": {
@@ -24,6 +28,7 @@
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.5",
     "@biomejs/biome": "2.5.5",
+    "@fast-check/vitest": "0.4.1",
     "@types/eslint-plugin-security": "3.0.1",
     "@types/node": "24.13.3",
     "@vitest/coverage-v8": "4.1.10",
@@ -43,5 +48,8 @@
     "typescript": "6.0.3",
     "typescript-eslint": "8.65.0",
     "vitest": "4.1.10"
+  },
+  "dependencies": {
+    "fast-check": "4.9.0"
   }
 }

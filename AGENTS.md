@@ -22,6 +22,12 @@ Every line, branch, function, and statement under `src` has to carry a test behi
 
 Reviewers reject a hint with no reason beside it, the same way they reject an undocumented lint suppression. Nothing in this repository carries a hint today.
 
+## Regression examples
+
+The suites under `tests/property` remember nothing between runs. fast-check draws its cases fresh each time and lets them go when the process ends, so a case that once broke the code comes back only by chance. Carry it in the change instead. A failing property prints the shrunk value it settled on, together with the seed and the path it took to get there. Write that value into a plain test beside the property. Watch that test fail on the same ground before you repair the source.
+
+Leave the property unseeded afterwards. A pinned seed narrows the search that turned the case up in the first place, and the example test beside it already holds that ground. The seed in the report reproduces a run while you work on it and belongs nowhere else.
+
 ## Prose lint output
 
 The toolchain already defaults to the agent template. Both `just lint-prose` and the prek vale hook pass `--output=proofhouse-agent.tmpl`, so add the flag yourself only when invoking vale directly on specific paths. The template, synced from the proofhouse style package, prints one self-contained line per finding (location, severity, rule, the exact matched text, and the replacement parameter when the rule defines one) plus a totals line, so you can apply fixes without re-reading context through separate commands. Empty output means a clean run, and the exit code carries the result.
