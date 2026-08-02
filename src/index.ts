@@ -46,6 +46,7 @@ export {
 } from "./ast.ts";
 export { DivisionByZeroError, ExpressionError, LexError, ParseError } from "./errors.ts";
 export { evaluate, evaluateText, type Rational } from "./evaluator.ts";
+export { formatExpr } from "./formatter.ts";
 export { tokenize } from "./lexer.ts";
 export { parse } from "./parser.ts";
 export { TOKEN_KINDS, type Token, type TokenKind } from "./tokens.ts";

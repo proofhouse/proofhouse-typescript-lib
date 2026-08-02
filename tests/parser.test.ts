@@ -5,38 +5,21 @@
 
 import { describe, expect, it } from "vitest";
 
-import {
-  BINARY_OPERATORS,
-  type BinaryOperator,
-  type Expr,
-  ExpressionError,
-  LexError,
-  ParseError,
-  parse,
-  UNARY_OPERATORS,
-  type UnaryOperator,
-} from "../src/index.ts";
-
-const BINARY_SYMBOLS: Readonly<Record<BinaryOperator, string>> = {
-  add: "+",
-  sub: "-",
-  mul: "*",
-  div: "/",
-};
-
-const UNARY_SYMBOLS: Readonly<Record<UnaryOperator, string>> = { neg: "-" };
+import { operatorSymbol } from "../src/formatter.ts";
+import { type Expr, ExpressionError, LexError, ParseError, parse } from "../src/index.ts";
 
 // Writes a tree back out with a bracket around every operator it applies. Precedence and
 // associativity then read straight off the expected string, where a nest of object
-// literals would leave them to be worked out.
+// literals would leave them to be worked out. The symbols come from the formatter, which
+// owns how an operator spells out.
 function render(expr: Expr): string {
   switch (expr.kind) {
     case "number":
       return String(expr.value);
     case "unary":
-      return `(${UNARY_SYMBOLS[expr.operator]}${render(expr.operand)})`;
+      return `(${operatorSymbol(expr.operator)}${render(expr.operand)})`;
     case "binary":
-      return `(${render(expr.left)} ${BINARY_SYMBOLS[expr.operator]} ${render(expr.right)})`;
+      return `(${render(expr.left)} ${operatorSymbol(expr.operator)} ${render(expr.right)})`;
   }
 }
 
@@ -156,11 +139,6 @@ describe("parse", () => {
 
   it("reads a multi-digit literal as one value", () => {
     expect(parse("1234")).toStrictEqual({ kind: "number", value: 1234 });
-  });
-
-  it("names a symbol for every declared operator", () => {
-    expect(new Set(Object.keys(BINARY_SYMBOLS))).toStrictEqual(new Set(BINARY_OPERATORS));
-    expect(new Set(Object.keys(UNARY_SYMBOLS))).toStrictEqual(new Set(UNARY_OPERATORS));
   });
 });
 
