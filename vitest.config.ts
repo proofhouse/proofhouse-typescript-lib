@@ -12,6 +12,11 @@ const config: ViteUserConfig = defineConfig({
     // Naming it alone would drop the defaults with `node_modules` among them, because
     // this key is an assignment and not an addition.
     exclude: [...configDefaults.exclude, "tests/erasable/**"],
+    // Fixed order lets one test depend on what another leaves behind. The suite
+    // keeps passing while that coupling hardens. Randomizing the files and the
+    // tests within them makes the dependency fail instead. Every run reports its
+    // seed, and `sequence.seed` accepts that number to repeat the same order.
+    sequence: { shuffle: true },
   },
 });
 

@@ -515,9 +515,23 @@ lint-commit-msg:
 
 # --- Test ---
 
+# vitest draws a fresh order per run and prints the seed behind it, but
+# it reads no environment variable for that seed, so replaying an order
+# means putting the number back on the command line. VITEST_SEED is the
+# knob this recipe adds: a red run names its seed, and
+# `VITEST_SEED=<n> just test` walks the same order again. Leaving the
+# variable unset keeps the default of a new order every time. The
+# pre-push hook calls the binary and skips this recipe, which costs it
+# nothing, since a hook run has no failure to reproduce.
+
 # Run tests
+[script]
 test *args:
-    node_modules/.bin/vitest run "$@"
+    if [[ -n "${VITEST_SEED:-}" ]]; then
+        node_modules/.bin/vitest run --sequence.seed="$VITEST_SEED" "$@"
+    else
+        node_modules/.bin/vitest run "$@"
+    fi
 
 # A second suite, far smaller, that runs on the runtime and nothing else:
 # no vitest, no transform, no step of any kind between the sources and
