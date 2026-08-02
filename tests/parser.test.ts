@@ -89,6 +89,12 @@ const failureCases: readonly FailureCase[] = [
     offset: 0,
   },
   {
+    name: "a plus where a value belongs",
+    text: "+7",
+    message: 'expected an operand, found "+" at offset 0',
+    offset: 0,
+  },
+  {
     name: "an operator with nothing on its right",
     text: "1 +",
     message: "expected an operand, found end of input at offset 3",

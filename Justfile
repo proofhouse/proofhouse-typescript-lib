@@ -149,9 +149,9 @@ build-repro-check:
         exit 1
     fi
 
-# Drop build output
+# Drop build output and the coverage trees
 clean:
-    rm -rf dist
+    rm -rf dist coverage reports
     rm -f *.tsbuildinfo
 
 # --- Format ---
@@ -309,8 +309,11 @@ lint-eslint:
 # through one module, and without that setting the walk would stop at
 # its door and take the whole surface on trust. What the setting really
 # asks is whether the suite covers the surface, since a test is the only
-# caller a published name has in here. The ignore list beside it names
-# the packages this file runs by path, which no import can reach.
+# caller a published name has in here. The entry list carries the
+# coverage checker under scripts alongside that module, because a
+# workflow step reaches it by path and no import ever does. The ignore
+# list beside it names the packages this file runs the same way, the
+# report merger among them.
 
 # Check for unused files, exports, and dependencies via knip.
 lint-deadcode:
@@ -544,6 +547,70 @@ test *args:
 # Run the smoke suite as raw TypeScript under Node's type stripping.
 test-erasable:
     node --test "tests/erasable/**/*.test.ts"
+
+# A green suite reports what it checked and stays silent about what it
+# walked past. This recipe supplies the second half: vitest switches on
+# the counters v8 keeps anyway, and vitest.config.ts holds the bar those
+# counts clear — lines, branches, functions, statements, each source
+# file answering on its own numbers. Nothing else about the run changes,
+# which is what makes this the recipe to sit inside while writing tests.
+# Read the Uncovered column, then write the test that goes there.
+
+# Run the suite under coverage and hold each file to the bar.
+cover *args:
+    node_modules/.bin/vitest run --coverage "$@"
+
+# The terminal report names an uncovered line by its number and leaves
+# it at that. Rendered as HTML the number goes back onto the source, so
+# the line reads in place, and a conditional shows which of its arms
+# went unvisited rather than which line held them.
+
+# Render the coverage report as HTML and name the entry point.
+cover-html:
+    node_modules/.bin/vitest run --coverage --coverage.reporter=html
+    @echo "open coverage/index.html"
+
+# Whatever this catches, the bar above catches too, later and in worse
+# terms. The difference is where the complaint lands: on the lines a
+# change edited, named one by one, rather than inside a merged
+# percentage that only exists once the whole matrix has reported.
+# diff-cover comes from PyPI through uvx the way the header gate reaches
+# reuse, and Renovate tracks that pin off the line below. Both
+# parameters take positions so CI can aim the recipe at the merged
+# report instead of the local one.
+
+# Fail when a line changed since [base] arrives uncovered.
+cover-diff base="origin/main" report="coverage/lcov.info":
+    uvx --from 'diff-cover==10.4.1' diff-cover {{ report }} --compare-branch={{ base }} --fail-under=100
+
+# Twelve slots, twelve reports, one question: do they describe the same
+# tree? Two rewrites come first. A Windows runner ends its lines with a
+# carriage return and spells its source paths with backslashes, which
+# would file one module under two names. Copying each report out under
+# the name of the directory it arrived in comes next, since every slot
+# calls its own file lcov.info and the merger reads a single flat glob.
+# Zero reports would merge to an empty file that clears everything
+# downstream, so the count answers for itself before the merge runs.
+
+# Merge every slot's report under [dir] and check the merged result.
+[script]
+cover-merge dir="reports/coverage":
+    staged=$(mktemp -d)
+    trap 'rm -rf "$staged"' EXIT
+    found=0
+    for report in {{ dir }}/*/lcov.info; do
+        [[ -e "$report" ]] || continue
+        slot=$(basename "$(dirname "$report")")
+        tr -d '\r' < "$report" | sed -e '/^SF:/s|\\|/|g' > "$staged/$slot.info"
+        found=$((found + 1))
+    done
+    if [[ "$found" -eq 0 ]]; then
+        echo "no per-slot reports under {{ dir }}" >&2
+        exit 1
+    fi
+    mkdir -p coverage
+    node_modules/.bin/lcov-result-merger "$staged/*.info" coverage/merged.info
+    node scripts/check-lcov.mjs coverage/merged.info
 
 # Typecheck the sources and the tests. tsc7 is named by path because
 # both compilers in devDependencies ship a tsc binary and only one of

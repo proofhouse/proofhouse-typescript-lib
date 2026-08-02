@@ -17,6 +17,23 @@ const config: ViteUserConfig = defineConfig({
     // tests within them makes the dependency fail instead. Every run reports its
     // seed, and `sequence.seed` accepts that number to repeat the same order.
     sequence: { shuffle: true },
+    coverage: {
+      provider: "v8",
+      // The default here is whatever a run loaded, which reads the wrong way round:
+      // a module the suite never imports would leave the report rather than sink it.
+      // Naming the tree keeps every source file in the denominator, reached or not.
+      include: ["src/**"],
+      exclude: ["**/*.d.ts"],
+      reporter: ["text", "lcov"],
+      // Per file, so a module nobody tested can't hide behind the ones that are.
+      thresholds: {
+        branches: 100,
+        functions: 100,
+        lines: 100,
+        statements: 100,
+        perFile: true,
+      },
+    },
   },
 });
 
