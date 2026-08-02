@@ -332,6 +332,12 @@ lint-deadcode:
 # has to revise this line as well. The roots follow as arguments,
 # because jscpd reads paths from the command line and its config file
 # holds settings alone.
+#
+# One limit sits outside the flags. jscpd passes over a clone whose
+# copy appears in the opening 28 lines or so of the file receiving it,
+# whatever token count the run demands, as 5.0.14 still shows. A
+# duplicate planted to test this gate has to go below that mark to
+# register.
 
 # Report copy-pasted passages across the sources and the suite.
 lint-dup-code:
