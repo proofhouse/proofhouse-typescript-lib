@@ -170,3 +170,4 @@ publint
 attw('s)?
 jq
 [Ee]xpr
+maxDepth

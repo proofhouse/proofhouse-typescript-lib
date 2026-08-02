@@ -63,10 +63,10 @@ module.exports = {
     {
       name: "no-testing-in-production",
       comment:
-        "Helpers written for suites to lean on ship inside the package and belong on " +
-        "nobody's runtime path. Anything under src living outside that directory has " +
-        "to stay clear of it. The directory itself turns up with the property-testing " +
-        "work and this rule waits here so the first file lands already fenced.",
+        "Generators written for suites to draw from ship inside the package and belong " +
+        "on nobody's runtime path. Anything under src living outside that directory " +
+        "has to stay clear of it, which is what leaves a caller entering through the " +
+        "main module with no test dependency loaded behind it.",
       severity: "error",
       from: { path: "^src", pathNot: "^src/testing" },
       to: { path: "^src/testing" },
@@ -85,22 +85,35 @@ module.exports = {
       name: "no-orphans",
       comment:
         "A file with no import running into it or out of it is work that stalled or " +
-        "work that finished and left. The exemption below covers the module the " +
+        "work that finished and left. The exemptions below cover the two modules the " +
         "exports map points consumers at, which nothing inside this tree should reach " +
         "for.",
       severity: "error",
-      from: { orphan: true, pathNot: ["^src/index[.]ts$"] },
+      from: { orphan: true, pathNot: ["^src/index[.]ts$", "^src/testing/index[.]ts$"] },
       to: {},
     },
     {
       name: "no-unreachable-from-entry",
       comment:
         "The walk sets out from the module consumers enter through and has to arrive " +
-        "at each file under src. A pair of modules importing one another and nothing " +
-        "besides clears the orphan rule above while running for nobody at all.",
+        "at every file beside it. A pair of modules importing one another and nothing " +
+        "besides clears the orphan rule above while running for nobody at all. The " +
+        "generators are left out because the main module is precisely what must not " +
+        "reach them.",
       severity: "error",
       from: { path: "^src/index[.]ts$" },
-      to: { path: "^src", reachable: false },
+      to: { path: "^src", pathNot: "^src/testing", reachable: false },
+    },
+    {
+      name: "no-unreachable-from-testing-entry",
+      comment:
+        "The same walk over the other subpath, which the exports map hands out under " +
+        "its own name and no module here imports. A rule naming both roots at once " +
+        "would ask each of them to reach what the other one does, and neither one " +
+        "ever will.",
+      severity: "error",
+      from: { path: "^src/testing/index[.]ts$" },
+      to: { path: "^src/testing", reachable: false },
     },
   ],
   options: {
