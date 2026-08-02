@@ -14,6 +14,14 @@ Draft every commit message in `COMMIT_AGENTMSG` at the repo root before you run 
 
 The prek commit-msg hook on `.git/COMMIT_EDITMSG` stays the real gate. `COMMIT_AGENTMSG` and its recipe only preview that gate, so a clean recipe run predicts a clean commit but never replaces the hook.
 
+## Coverage hints
+
+Every line, branch, function, and statement under `src` has to carry a test behind it, and each file answers for its own numbers. When the report calls a branch uncovered, a test is missing, and writing that test is the fix. A `v8 ignore` hint belongs only where no test could reach the line at all, and it always reads `/* v8 ignore <kind> -- @preserve: <reason> */`. Drop the `@preserve` marker and the transform strips the comment before the coverage provider ever sees it. Whoever reviews the change weighs the reason after the colon.
+
+`v8 ignore next 3` looks like it names a count, and it doesn't. One line drops out while the other two stay scored, which leaves the gate green over a hole nobody wrote down. Wrap a span in `v8 ignore start` and `v8 ignore stop` instead. Excusing one arm of a conditional means putting the hint inside that arm, since a hint over the `if` speaks about the statement rather than about either branch beneath it.
+
+Reviewers reject a hint with no reason beside it, the same way they reject an undocumented lint suppression. Nothing in this repository carries a hint today.
+
 ## Prose lint output
 
 The toolchain already defaults to the agent template. Both `just lint-prose` and the prek vale hook pass `--output=proofhouse-agent.tmpl`, so add the flag yourself only when invoking vale directly on specific paths. The template, synced from the proofhouse style package, prints one self-contained line per finding (location, severity, rule, the exact matched text, and the replacement parameter when the rule defines one) plus a totals line, so you can apply fixes without re-reading context through separate commands. Empty output means a clean run, and the exit code carries the result.
