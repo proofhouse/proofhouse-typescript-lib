@@ -581,7 +581,7 @@ cover-html:
 
 # Fail when a line changed since [base] arrives uncovered.
 cover-diff base="origin/main" report="coverage/lcov.info":
-    uvx --from 'diff-cover==10.4.1' diff-cover {{ report }} --compare-branch={{ base }} --fail-under=100
+    uvx --from 'diff-cover==10.5.1' diff-cover {{ report }} --compare-branch={{ base }} --fail-under=100
 
 # Twelve slots, twelve reports, one question: do they describe the same
 # tree? Two rewrites come first. A Windows runner ends its lines with a
