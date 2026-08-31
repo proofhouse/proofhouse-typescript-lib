@@ -3,5 +3,5 @@
 # the packageManager field in package.json is what holds pnpm to one
 # version everywhere.
 [tools]
-node = "24.18.1"
+node = "24.20.0"
 pnpm = "11.17.0"
