@@ -4,4 +4,4 @@
 # version everywhere.
 [tools]
 node = "24.18.1"
-pnpm = "11.17.0"
+pnpm = "11.25.0"
