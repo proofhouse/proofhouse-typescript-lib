@@ -42,3 +42,6 @@ overrides:
   # lays down a second copy. The typed rules and that plugin have to
   # agree on one.
   "@typescript-eslint/utils": "8.65.0"
+minimumReleaseAgeExclude:
+  # Renovate security update: vitest@4.1.11
+  - vitest@4.1.11
