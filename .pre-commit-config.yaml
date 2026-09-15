@@ -57,7 +57,7 @@ repos:
         exclude: ^CHANGELOG\.md$
 
   - repo: https://github.com/rvben/rumdl-pre-commit
-    rev: 75cad3ecfe02b58e8165d3ac08d117bee207ed3d  # frozen: v0.2.43
+    rev: f7892669ea9ffc109ddb2b1848aa7b1b987922a6  # frozen: v0.2.70
     hooks:
       - id: rumdl-fmt
       - id: rumdl
